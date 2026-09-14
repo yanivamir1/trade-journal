@@ -7,10 +7,10 @@ import { getSettings, saveSettings } from './storage.js';
 const DEFAULT_FINNHUB_KEY = 'dagrii1r01qomfflj180dagrii1r01qomfflj18g';
 
 const TABS = {
-  trades: { label: 'טריידים', render: renderTradesTab },
-  portfolio: { label: 'שווי תיק', render: renderPortfolioTab },
-  stats: { label: 'סטטיסטיקות', render: renderStatsTab },
-  settings: { label: 'הגדרות', render: renderSettingsTab },
+  trades: { label: 'Trades', render: renderTradesTab },
+  portfolio: { label: 'Portfolio', render: renderPortfolioTab },
+  stats: { label: 'Stats', render: renderStatsTab },
+  settings: { label: 'Settings', render: renderSettingsTab },
 };
 
 function ensureDefaultApiKey() {

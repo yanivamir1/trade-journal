@@ -34,38 +34,39 @@ export function renderSettingsTab(container) {
 
   container.innerHTML = `
     <div class="panel">
-      <h3>מפתח API (Finnhub)</h3>
-      <p class="hint">נדרש כדי שכפתור ה-Live Price יעבוד. חינמי, נרשמים ב-finnhub.io/register.</p>
+      <h3>API Key (Finnhub)</h3>
+      <p class="hint">Required for the Live Price button to work. Free, sign up at finnhub.io/register.</p>
       <form id="api-key-form" class="form-grid">
-        <label>מפתח
-          <input type="text" name="finnhubApiKey" value="${settings.finnhubApiKey || ''}" placeholder="המפתח שלך">
+        <label>Key
+          <input type="text" name="finnhubApiKey" value="${settings.finnhubApiKey || ''}" placeholder="Your key">
         </label>
-        <button type="submit" class="btn-primary">שמור</button>
+        <button type="submit" class="btn-primary">Save</button>
       </form>
     </div>
 
     <div class="panel">
-      <h3>ייבוא טריידים מהיסטוריה</h3>
-      <p class="hint">קובץ JSON של טריידים (לדוגמה קובץ מיובא מ-trade_journal_example.xlsx).
-      הנתונים נשמרים רק בדפדפן שלך.</p>
+      <h3>Import Historical Trades</h3>
+      <p class="hint">A JSON file of trades (e.g. a file converted from trade_journal_example.xlsx).
+      Data stays only in your browser.</p>
       <input type="file" id="import-trades" accept="application/json">
     </div>
 
     <div class="panel">
-      <h3>גיבוי ושחזור</h3>
-      <p class="hint">גיבוי מלא של כל הטריידים ושווי התיק לקובץ JSON, ושחזור ממנו במכשיר אחר —
-      זה גם הדרך הידנית לסנכרן בין הטלפון למחשב עד שיתווסף סנכרון אוטומטי בענן.</p>
+      <h3>Backup &amp; Restore</h3>
+      <p class="hint">Full backup of all trades and portfolio value to a JSON file, and restore from it
+      on another device — this is also the manual way to sync between your phone and computer until
+      automatic cloud sync is added.</p>
       <div class="btn-row">
-        <button id="export-btn" class="btn-secondary">ייצוא לקובץ</button>
-        <label class="btn-secondary file-label">ייבוא מקובץ
+        <button id="export-btn" class="btn-secondary">Export to File</button>
+        <label class="btn-secondary file-label">Import from File
           <input type="file" id="import-backup" accept="application/json" hidden>
         </label>
       </div>
     </div>
 
     <div class="panel">
-      <h3>מחיקת נתונים</h3>
-      <button id="reset-btn" class="btn-danger">מחק הכל</button>
+      <h3>Delete Data</h3>
+      <button id="reset-btn" class="btn-danger">Delete Everything</button>
     </div>
   `;
 
@@ -73,7 +74,7 @@ export function renderSettingsTab(container) {
     e.preventDefault();
     const fd = new FormData(e.target);
     saveSettings({ ...settings, finnhubApiKey: fd.get('finnhubApiKey').trim() });
-    alert('נשמר');
+    alert('Saved');
   });
 
   container.querySelector('#import-trades').addEventListener('change', async (e) => {
@@ -84,9 +85,9 @@ export function renderSettingsTab(container) {
       const list = Array.isArray(json) ? json : [json];
       const normalized = list.map(normalizeLegacyTrade);
       saveTrades([...getTrades(), ...normalized]);
-      alert(`יובאו ${normalized.length} טריידים`);
+      alert(`Imported ${normalized.length} trades`);
     } catch (err) {
-      alert('קובץ לא תקין: ' + err.message);
+      alert('Invalid file: ' + err.message);
     }
   });
 
@@ -106,17 +107,17 @@ export function renderSettingsTab(container) {
     try {
       const json = JSON.parse(await file.text());
       importAppBackup(json);
-      alert('שוחזר בהצלחה');
+      alert('Restored successfully');
     } catch (err) {
-      alert('קובץ לא תקין: ' + err.message);
+      alert('Invalid file: ' + err.message);
     }
   });
 
   container.querySelector('#reset-btn').addEventListener('click', () => {
-    if (confirm('בטוח? כל הטריידים ושווי התיק יימחקו מהמכשיר הזה.')) {
+    if (confirm('Are you sure? All trades and portfolio value will be deleted from this device.')) {
       saveTrades([]);
       localStorage.removeItem('tj.portfolio');
-      alert('נמחק');
+      alert('Deleted');
     }
   });
 }

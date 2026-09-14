@@ -18,7 +18,7 @@ function toBarData(breakdown, labelFn) {
   return breakdown.map(b => ({
     group: labelFn ? labelFn(b.group) : b.group,
     value: b.avgPnlPercent,
-    sublabel: `${b.count} טריידים · win-rate ${b.winRate.toFixed(0)}%`,
+    sublabel: `${b.count} trades · win-rate ${b.winRate.toFixed(0)}%`,
   }));
 }
 
@@ -29,22 +29,22 @@ export function renderStatsTab(container) {
 
   container.innerHTML = `
     <div class="summary-row">
-      <div class="summary-card"><div class="summary-label">סה"כ טריידים</div><div class="summary-value">${overview.totalTrades}</div></div>
-      <div class="summary-card"><div class="summary-label">win-rate כללי</div><div class="summary-value">${overview.winRate !== null ? overview.winRate.toFixed(0) + '%' : '—'}</div></div>
-      <div class="summary-card"><div class="summary-label">P&L כולל</div><div class="summary-value">$${overview.totalPnl.toFixed(0)}</div></div>
-      <div class="summary-card"><div class="summary-label">פתוחים / סגורים</div><div class="summary-value"><span class="ltr-num">${overview.openCount} / ${overview.closedCount}</span></div></div>
+      <div class="summary-card"><div class="summary-label">Total Trades</div><div class="summary-value">${overview.totalTrades}</div></div>
+      <div class="summary-card"><div class="summary-label">Overall Win Rate</div><div class="summary-value">${overview.winRate !== null ? overview.winRate.toFixed(0) + '%' : '—'}</div></div>
+      <div class="summary-card"><div class="summary-label">Total P&L</div><div class="summary-value">$${overview.totalPnl.toFixed(0)}</div></div>
+      <div class="summary-card"><div class="summary-label">Open / Closed</div><div class="summary-value">${overview.openCount} / ${overview.closedCount}</div></div>
     </div>
 
-    ${section('עקומת שווי תיק', 'chart-portfolio')}
-    ${section('הצלחה לפי רמת פיבונאצ\'י', 'chart-fib', 'ממוצע P&L% לכל רמת כניסה')}
-    ${section('הצלחה לפי מיקום סטופ לוס', 'chart-stop', 'נמוך/בינוני/גבוה = שליש התחתון/אמצעי/עליון מבין כל הטריידים שלך')}
-    ${section('הצלחה לפי גודל פוזיציה', 'chart-size', 'האם לקחת מספיק או יותר מדי, לפי שליש התחתון/אמצעי/עליון')}
-    ${section('הצלחה לפי מצב רגשי', 'chart-emotion')}
-    ${section('הצלחה לפי עמידה בכללים', 'chart-rules')}
-    ${section('הצלחה לפי אחוז ירידה מהטופ', 'chart-drop')}
-    ${section('הצלחה לפי מבנה שוק', 'chart-structure')}
-    ${section('הצלחה לפי מגמת שוק כללית', 'chart-trend')}
-    ${accuracy !== null ? section('דיוק ההערכה העצמית (setup_worked)', 'chart-accuracy', `כמה פעמים ההערכה שלך אם ה"סטאפ עבד" תאמה בפועל לתוצאה: ${accuracy.toFixed(0)}%`) : ''}
+    ${section('Portfolio Value Curve', 'chart-portfolio')}
+    ${section("Success by Fibonacci Level", 'chart-fib', 'Average P&L% for each entry level')}
+    ${section('Success by Stop Loss Placement', 'chart-stop', 'Low/Medium/High = bottom/middle/top third among all your trades')}
+    ${section('Success by Position Size', 'chart-size', 'Whether you sized in enough or too much, by bottom/middle/top third')}
+    ${section('Success by Emotional State', 'chart-emotion')}
+    ${section('Success by Rule-Following', 'chart-rules')}
+    ${section('Success by Drop From Top', 'chart-drop')}
+    ${section('Success by Market Structure', 'chart-structure')}
+    ${section('Success by Overall Market Trend', 'chart-trend')}
+    ${accuracy !== null ? section('Self-Assessment Accuracy (setup worked)', 'chart-accuracy', `How often your call on whether "the setup worked" matched the actual outcome: ${accuracy.toFixed(0)}%`) : ''}
   `;
 
   const portfolioSeries = computeAdjustedSeries();
@@ -54,7 +54,7 @@ export function renderStatsTab(container) {
   renderBarList(container.querySelector('#chart-stop'), toBarData(breakdownByStopLoss(trades)));
   renderBarList(container.querySelector('#chart-size'), toBarData(breakdownByPositionSize(trades)));
   renderBarList(container.querySelector('#chart-emotion'), toBarData(breakdownBy(trades, 'emotion'), v => labelFor(EMOTIONS, v)));
-  renderBarList(container.querySelector('#chart-rules'), toBarData(breakdownBy(trades, 'rule_followed'), v => v === 'yes' ? 'עמד בכללים' : 'לא עמד בכללים'));
+  renderBarList(container.querySelector('#chart-rules'), toBarData(breakdownBy(trades, 'rule_followed'), v => v === 'yes' ? 'Followed rules' : 'Broke rules'));
   renderBarList(container.querySelector('#chart-drop'), toBarData(breakdownByDropFromTop(trades)));
   renderBarList(container.querySelector('#chart-structure'), toBarData(breakdownBy(trades, 'market_structure'), v => labelFor(MARKET_STRUCTURES, v)));
   renderBarList(container.querySelector('#chart-trend'), toBarData(breakdownBy(trades, 'market_trend'), v => labelFor(MARKET_TRENDS, v)));

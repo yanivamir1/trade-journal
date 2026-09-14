@@ -1,22 +1,27 @@
 import { getPortfolioHistory, addPortfolioEntry, savePortfolioHistory } from './storage.js';
 import { renderLineChart } from './charts.js';
 
-// מיישם את המתודולוגיה מ-portfolio_data.json: ניטרול הפקדות/משיכות מצטבר,
-// כדי שהגרף יראה רק תנועת שוק אמיתית ולא כסף שנכנס/יצא מהתיק.
+// Implements the portfolio_data.json methodology: subtract cumulative net
+// deposits/withdrawals so the chart shows pure market movement.
 export function computeAdjustedSeries() {
   const records = [...getPortfolioHistory()].sort((a, b) => a.date.localeCompare(b.date));
   let cumNetFlow = 0;
-  return records.map(r => {
+  const series = [];
+  for (const r of records) {
     cumNetFlow += Number(r.deposit_withdrawal || 0);
-    const rawValue = r.type === 'candle' ? r.close : r.value;
-    return {
+    const rawValue = r.type === 'candle' ? r.close : r.type === 'point' ? r.value : null;
+    // Some imported days (e.g. type "empty") carry no observed value — deposit/withdrawal
+    // still counts toward cumNetFlow above, but there is nothing to plot for that day.
+    if (typeof rawValue !== 'number' || Number.isNaN(rawValue)) continue;
+    series.push({
       date: r.date,
       type: r.type,
       rawValue,
       cumNetFlow,
       adjustedValue: rawValue - cumNetFlow,
-    };
-  });
+    });
+  }
+  return series;
 }
 
 export function addDailyValue(date, value, depositWithdrawal) {
@@ -41,11 +46,11 @@ export function renderPortfolioTab(container) {
     <div class="panel">
       <div class="summary-row">
         <div class="summary-card">
-          <div class="summary-label">שווי תיק (מתואם)</div>
+          <div class="summary-label">Portfolio Value (adjusted)</div>
           <div class="summary-value">${last ? `$${last.adjustedValue.toFixed(0)}` : '—'}</div>
         </div>
         <div class="summary-card">
-          <div class="summary-label">שווי תיק (גולמי)</div>
+          <div class="summary-label">Portfolio Value (raw)</div>
           <div class="summary-value">${last ? `$${last.rawValue.toFixed(0)}` : '—'}</div>
         </div>
       </div>
@@ -53,25 +58,25 @@ export function renderPortfolioTab(container) {
     </div>
 
     <div class="panel">
-      <h3>הוספת שווי יומי</h3>
+      <h3>Add Daily Value</h3>
       <form id="portfolio-form" class="form-grid">
-        <label>תאריך
+        <label>Date
           <input type="date" name="date" required value="${new Date().toISOString().slice(0, 10)}">
         </label>
-        <label>שווי תיק כולל ($)
+        <label>Total Portfolio Value ($)
           <input type="number" step="0.01" name="value" required>
         </label>
-        <label>הפקדה/משיכה היום ($, שלילי למשיכה)
+        <label>Deposit/Withdrawal Today ($, negative for withdrawal)
           <input type="number" step="0.01" name="deposit_withdrawal" value="0">
         </label>
-        <button type="submit" class="btn-primary">שמור</button>
+        <button type="submit" class="btn-primary">Save</button>
       </form>
     </div>
 
     <div class="panel">
-      <h3>ייבוא נתוני עבר</h3>
-      <p class="hint">אפשר לייבא את הקובץ <code>portfolio_data.json</code> מתיקיית ההכנה — הנתונים
-      נשמרים רק בדפדפן שלך, לא עולים לשום שרת.</p>
+      <h3>Import Historical Data</h3>
+      <p class="hint">You can import the <code>portfolio_data.json</code> file from the prep folder —
+      data stays only in your browser, nothing is uploaded anywhere.</p>
       <input type="file" id="portfolio-import" accept="application/json">
     </div>
   `;
@@ -99,7 +104,7 @@ export function renderPortfolioTab(container) {
       savePortfolioHistory(merged);
       renderPortfolioTab(container);
     } catch (err) {
-      alert('קובץ לא תקין: ' + err.message);
+      alert('Invalid file: ' + err.message);
     }
   });
 }

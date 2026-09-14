@@ -6,11 +6,12 @@ function el(tag, attrs) {
   return node;
 }
 
-// points: [{x: label(string), y: number}], מצויר כגרף שטח/קו רספונסיבי.
-export function renderLineChart(container, points, { color = '#4a7dff', height = 220 } = {}) {
+// points: [{x: label(string), y: number}], drawn as a responsive area/line chart.
+export function renderLineChart(container, rawPoints, { color = '#4a7dff', height = 220 } = {}) {
   container.innerHTML = '';
+  const points = rawPoints.filter(p => typeof p.y === 'number' && !Number.isNaN(p.y));
   if (!points.length) {
-    container.innerHTML = '<div class="empty-state">אין עדיין נתוני שווי תיק</div>';
+    container.innerHTML = '<div class="empty-state">No portfolio value data yet</div>';
     return;
   }
 
@@ -54,11 +55,11 @@ export function renderLineChart(container, points, { color = '#4a7dff', height =
   container.appendChild(svg);
 }
 
-// data: [{group, value, sublabel}], מוצג כרשימת בארים אופקיים (HTML/CSS, לא SVG).
+// data: [{group, value, sublabel}], rendered as a horizontal bar list (HTML/CSS, not SVG).
 export function renderBarList(container, data, { valueSuffix = '%', color = '#4a7dff' } = {}) {
   container.innerHTML = '';
   if (!data.length) {
-    container.innerHTML = '<div class="empty-state">אין מספיק נתונים סגורים לניתוח זה</div>';
+    container.innerHTML = '<div class="empty-state">Not enough closed trades for this breakdown yet</div>';
     return;
   }
   const maxAbs = Math.max(...data.map(d => Math.abs(d.value)), 1);

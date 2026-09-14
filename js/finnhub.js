@@ -61,11 +61,11 @@ export async function getLivePriceBundle(ticker, apiKey) {
 export function errorMessage(err) {
   const messages = {
     empty: '',
-    not_found: `לא נמצאה מניה בשם ${err.symbol || ''}`,
-    invalid_key: 'מפתח ה-API לא תקין',
-    rate_limited: 'יותר מדי בקשות, נסה בעוד רגע',
-    network: 'אין חיבור לאינטרנט',
-    server_error: 'שגיאת שרת, נסה שוב',
+    not_found: `No stock found for ${err.symbol || ''}`,
+    invalid_key: 'Invalid API key',
+    rate_limited: 'Too many requests, try again shortly',
+    network: 'No internet connection',
+    server_error: 'Server error, try again',
   };
-  return messages[err.code] || 'שגיאה לא ידועה';
+  return messages[err.code] || 'Unknown error';
 }

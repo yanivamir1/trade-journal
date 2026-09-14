@@ -38,14 +38,14 @@ function median(nums) {
 
 function tertileBucketer(values) {
   const nums = values.filter(v => typeof v === 'number').sort((a, b) => a - b);
-  if (nums.length < 3) return () => 'הכל';
+  if (nums.length < 3) return () => 'All';
   const t1 = nums[Math.floor(nums.length / 3)];
   const t2 = nums[Math.floor((2 * nums.length) / 3)];
   return (v) => {
     if (v === null || v === undefined) return null;
-    if (v <= t1) return 'נמוך';
-    if (v <= t2) return 'בינוני';
-    return 'גבוה';
+    if (v <= t1) return 'Low';
+    if (v <= t2) return 'Medium';
+    return 'High';
   };
 }
 

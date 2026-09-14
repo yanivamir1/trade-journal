@@ -1,34 +1,41 @@
+export const FIBONACCI_LEVELS = [
+  { value: '30', label: '30' },
+  { value: '50', label: '50' },
+  { value: '60', label: '60' },
+  { value: '70', label: '70' },
+];
+
 export const EMOTIONS = [
-  { value: 'fear_greed', label: 'פחד/חמדנות' },
-  { value: 'calculated', label: 'מחושב' },
+  { value: 'fear_greed', label: 'Fear/Greed' },
+  { value: 'calculated', label: 'Calculated' },
   { value: 'fomo', label: 'FOMO' },
-  { value: 'mild_fomo', label: 'FOMO קל' },
+  { value: 'mild_fomo', label: 'Mild FOMO' },
 ];
 
 export const UPHILL_DURATIONS = [
-  { value: '1_year', label: 'שנה' },
-  { value: '2_years', label: 'שנתיים' },
-  { value: '3_years', label: '3 שנים' },
-  { value: 'longer', label: 'יותר' },
+  { value: '1_year', label: '1 year' },
+  { value: '2_years', label: '2 years' },
+  { value: '3_years', label: '3 years' },
+  { value: 'longer', label: 'Longer' },
 ];
 
 export const MARKET_STRUCTURES = [
-  { value: 'clear_uptrend', label: 'מגמת עלייה ברורה' },
-  { value: 'uptrend_retest', label: 'עלייה עם רה-טסט' },
-  { value: 'uptrend_big_correction', label: 'עלייה עם תיקון גדול' },
-  { value: 'sideways', label: 'דשדוש' },
-  { value: 'downtrend', label: 'מגמת ירידה' },
+  { value: 'clear_uptrend', label: 'Clear uptrend' },
+  { value: 'uptrend_retest', label: 'Uptrend with retest' },
+  { value: 'uptrend_big_correction', label: 'Uptrend with big correction' },
+  { value: 'sideways', label: 'Sideways' },
+  { value: 'downtrend', label: 'Downtrend' },
 ];
 
 export const MARKET_TRENDS = [
-  { value: 'uptrend', label: 'עולה' },
-  { value: 'downtrend', label: 'יורד' },
-  { value: 'sideways', label: 'דשדוש' },
+  { value: 'uptrend', label: 'Uptrend' },
+  { value: 'downtrend', label: 'Downtrend' },
+  { value: 'sideways', label: 'Sideways' },
 ];
 
 export const YES_NO = [
-  { value: 'yes', label: 'כן' },
-  { value: 'no', label: 'לא' },
+  { value: 'yes', label: 'Yes' },
+  { value: 'no', label: 'No' },
 ];
 
 export function labelFor(options, value) {

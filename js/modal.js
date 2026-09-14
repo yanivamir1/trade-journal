@@ -5,7 +5,7 @@ export function openModal(innerHtml) {
   r.innerHTML = `
     <div class="modal-backdrop">
       <div class="modal-box">
-        <button class="modal-close" type="button" aria-label="סגור">✕</button>
+        <button class="modal-close" type="button" aria-label="Close">✕</button>
         ${innerHtml}
       </div>
     </div>

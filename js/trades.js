@@ -2,7 +2,7 @@ import { getTrades, addTrade, updateTrade, makeId, getSettings } from './storage
 import { deriveAll } from './stats.js';
 import { openModal, closeModal } from './modal.js';
 import { getLivePriceBundle, errorMessage } from './finnhub.js';
-import { EMOTIONS, UPHILL_DURATIONS, MARKET_STRUCTURES, MARKET_TRENDS, YES_NO, labelFor } from './constants.js';
+import { FIBONACCI_LEVELS, EMOTIONS, UPHILL_DURATIONS, MARKET_STRUCTURES, MARKET_TRENDS, YES_NO, labelFor } from './constants.js';
 
 function optionsHtml(options, selected) {
   return `<option value="">—</option>` + options
@@ -10,7 +10,7 @@ function optionsHtml(options, selected) {
     .join('');
 }
 
-function liveFieldsHtml(idPrefix, atrNote) {
+function liveFieldsHtml(idPrefix) {
   return `
     <div class="live-price-row">
       <button type="button" class="btn-secondary" data-live-price="${idPrefix}">📡 Live Price</button>
@@ -25,16 +25,16 @@ function wireLivePrice(box, idPrefix, symbolInputName, priceInputName, peInputNa
   btn.addEventListener('click', async () => {
     const symbolInput = box.querySelector(`[name="${symbolInputName}"]`);
     const symbol = symbolInput.value.trim();
-    if (!symbol) { status.textContent = 'הזן/י טיקר קודם'; return; }
+    if (!symbol) { status.textContent = 'Enter a ticker first'; return; }
     const { finnhubApiKey } = getSettings();
-    if (!finnhubApiKey) { status.textContent = 'חסר מפתח Finnhub — הגדר/י בהגדרות'; return; }
+    if (!finnhubApiKey) { status.textContent = 'Missing Finnhub API key — set it in Settings'; return; }
     btn.disabled = true;
-    status.textContent = 'טוען...';
+    status.textContent = 'Loading...';
     try {
       const data = await getLivePriceBundle(symbol, finnhubApiKey);
       box.querySelector(`[name="${priceInputName}"]`).value = data.price;
       if (peInputName && data.peRatio) box.querySelector(`[name="${peInputName}"]`).value = data.peRatio.toFixed(2);
-      status.textContent = `מחיר: $${data.price} · P/E: ${data.peRatio ? data.peRatio.toFixed(1) : '—'} · ATR: אין ב-Finnhub החינמי, יש להזין ידנית`;
+      status.textContent = `Price: $${data.price} · P/E: ${data.peRatio ? data.peRatio.toFixed(1) : '—'} · ATR: not available on free Finnhub, enter manually`;
     } catch (err) {
       status.textContent = errorMessage(err);
     } finally {
@@ -45,87 +45,87 @@ function wireLivePrice(box, idPrefix, symbolInputName, priceInputName, peInputNa
 
 function addTradeFormHtml() {
   return `
-    <h3>הוספת טרייד</h3>
+    <h3>Add Trade</h3>
     <form id="add-trade-form" class="form-grid">
-      <label>טיקר
-        <input type="text" name="symbol" required autocapitalize="characters" placeholder="לדוגמה: AAPL">
+      <label>Ticker
+        <input type="text" name="symbol" required autocapitalize="characters" placeholder="e.g. AAPL">
       </label>
       ${liveFieldsHtml('add')}
-      <label>תאריך כניסה
+      <label>Entry Date
         <input type="date" name="trade_date" required value="${new Date().toISOString().slice(0, 10)}">
       </label>
-      <label>מחיר כניסה
+      <label>Entry Price
         <input type="number" step="0.0001" name="entry_price" required>
       </label>
-      <label>גודל פוזיציה ($) *חובה*
+      <label>Position Size ($) *required*
         <input type="number" step="0.01" name="position_size" required>
       </label>
-      <label>רמת פיבונאצ'י
-        <input type="text" name="fibonacci_level" placeholder="לדוגמה: 50">
+      <label>Fibonacci Level
+        <select name="fibonacci_level">${optionsHtml(FIBONACCI_LEVELS)}</select>
       </label>
-      <label>אחוז ירידה מהטופ (%)
+      <label>Drop From Top (%)
         <input type="number" step="0.01" name="drop_from_top_pct">
       </label>
-      <label>מצב רגשי
+      <label>Emotional State
         <select name="emotion">${optionsHtml(EMOTIONS)}</select>
       </label>
-      <label>סטופ לוס מתוכנן (%)
+      <label>Planned Stop Loss (%)
         <input type="number" step="0.01" name="planned_stop_loss_pct">
       </label>
-      <label>מכפיל רווח P/E
+      <label>P/E Ratio
         <input type="number" step="0.01" name="pe_ratio">
       </label>
-      <label>ATR שבועי (ידני — לא זמין ב-Finnhub חינמי)
+      <label>Weekly ATR (manual — not available on free Finnhub)
         <input type="number" step="0.01" name="weekly_atr">
       </label>
-      <label>ATR יומי (ידני)
+      <label>Daily ATR (manual)
         <input type="number" step="0.01" name="daily_atr">
       </label>
-      <label>איכות אזור ביקוש (1-3)
+      <label>Demand Zone Quality (1-3)
         <input type="number" min="1" max="3" name="demand_zone_quality">
       </label>
-      <label>דירוג צורת עלייה (1-3)
+      <label>Uphill Shape Rating (1-3)
         <input type="number" min="1" max="3" name="uphill_shape_rating">
       </label>
-      <label>משך מגמת עלייה
+      <label>Uphill Duration
         <select name="uphill_duration">${optionsHtml(UPHILL_DURATIONS)}</select>
       </label>
-      <label>מבנה שוק
+      <label>Market Structure
         <select name="market_structure">${optionsHtml(MARKET_STRUCTURES)}</select>
       </label>
-      <label>מגמת שוק כללית
+      <label>Overall Market Trend
         <select name="market_trend">${optionsHtml(MARKET_TRENDS)}</select>
       </label>
-      <label>צורת גרף
-        <input type="text" name="chart_shape" placeholder="לדוגמה: breakout">
+      <label>Chart Shape
+        <input type="text" name="chart_shape" placeholder="e.g. breakout">
       </label>
-      <label>עמידה בכללים שלי
+      <label>Followed My Rules?
         <select name="rule_followed">${optionsHtml(YES_NO)}</select>
       </label>
-      <label>צילום מסך (קישור)
+      <label>Screenshot (link)
         <input type="url" name="screenshot" placeholder="https://...">
       </label>
-      <button type="submit" class="btn-primary">שמור טרייד</button>
+      <button type="submit" class="btn-primary">Save Trade</button>
     </form>
   `;
 }
 
 function sellFormHtml(trade) {
   return `
-    <h3>סגירת טרייד — ${trade.symbol}</h3>
+    <h3>Close Trade — ${trade.symbol}</h3>
     <form id="sell-trade-form" class="form-grid">
       <input type="hidden" name="symbol" value="${trade.symbol}">
       ${liveFieldsHtml('sell')}
-      <label>מחיר יציאה
+      <label>Exit Price
         <input type="number" step="0.0001" name="exit_price" required>
       </label>
-      <label>תאריך יציאה
+      <label>Exit Date
         <input type="date" name="exit_date" required value="${new Date().toISOString().slice(0, 10)}">
       </label>
-      <label>הסטאפ עבד?
+      <label>Did The Setup Work?
         <select name="setup_worked">${optionsHtml(YES_NO)}</select>
       </label>
-      <button type="submit" class="btn-primary">סגור טרייד</button>
+      <button type="submit" class="btn-primary">Close Trade</button>
     </form>
   `;
 }
@@ -187,12 +187,12 @@ function openSellModal(trade, onSaved) {
 function tradeCardHtml(trade) {
   const pnlBadge = trade.status === 'closed'
     ? `<span class="badge ${trade.pnl >= 0 ? 'badge-positive' : 'badge-negative'}">${trade.pnl >= 0 ? '+' : ''}${trade.pnl_percent.toFixed(1)}%</span>`
-    : `<span class="badge badge-open">פתוח</span>`;
+    : `<span class="badge badge-open">Open</span>`;
   return `
     <div class="trade-card">
       <div class="trade-card-main">
         <div class="trade-symbol">${trade.symbol}</div>
-        <div class="trade-meta">גודל פוזיציה: $${Number(trade.position_size).toFixed(0)} · כניסה: $${Number(trade.entry_price).toFixed(2)}</div>
+        <div class="trade-meta">Position: $${Number(trade.position_size).toFixed(0)} · Entry: $${Number(trade.entry_price).toFixed(2)}</div>
         <div class="trade-meta">${trade.trade_date}${trade.emotion ? ' · ' + labelFor(EMOTIONS, trade.emotion) : ''}</div>
       </div>
       <div class="trade-card-side">
@@ -211,11 +211,11 @@ export function renderTradesTab(container) {
     const filtered = trades.filter(t => t.status === filter);
     container.innerHTML = `
       <div class="tabs-row">
-        <button class="chip ${filter === 'open' ? 'chip-active' : ''}" data-filter="open">פתוחים</button>
-        <button class="chip ${filter === 'closed' ? 'chip-active' : ''}" data-filter="closed">סגורים</button>
+        <button class="chip ${filter === 'open' ? 'chip-active' : ''}" data-filter="open">Open</button>
+        <button class="chip ${filter === 'closed' ? 'chip-active' : ''}" data-filter="closed">Closed</button>
       </div>
       <div class="trade-list">
-        ${filtered.length ? filtered.map(tradeCardHtml).join('') : '<div class="empty-state">אין טריידים כאן עדיין</div>'}
+        ${filtered.length ? filtered.map(tradeCardHtml).join('') : '<div class="empty-state">No trades here yet</div>'}
       </div>
       <button id="add-trade-btn" class="fab">+ Add Trade</button>
     `;
