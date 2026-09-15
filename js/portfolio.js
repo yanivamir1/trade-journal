@@ -38,6 +38,61 @@ function formatDateLabel(iso) {
   return `${d}/${m}`;
 }
 
+function formatFullDateLabel(iso) {
+  const date = new Date(`${iso}T00:00:00`);
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+const DAILY_VALUES_PAGE_SIZE = 10;
+let showAllDailyValues = false;
+
+function rowValueLabel(record) {
+  const value = record.type === 'candle' ? record.close : record.type === 'point' ? record.value : null;
+  return typeof value === 'number' && !Number.isNaN(value) ? `$${value.toFixed(0)}` : '—';
+}
+
+function renderDailyValuesList(container) {
+  const records = [...getPortfolioHistory()].sort((a, b) => b.date.localeCompare(a.date));
+  const visible = showAllDailyValues ? records : records.slice(0, DAILY_VALUES_PAGE_SIZE);
+
+  const rowsHtml = visible.map(r => {
+    const flow = Number(r.deposit_withdrawal || 0);
+    const deposit = flow > 0 ? `$${flow.toFixed(0)}` : '—';
+    const withdrawal = flow < 0 ? `$${Math.abs(flow).toFixed(0)}` : '—';
+    return `
+      <div class="daily-row">
+        <div class="daily-row-date">${formatFullDateLabel(r.date)}</div>
+        <div class="daily-row-value">${rowValueLabel(r)}</div>
+        <div class="daily-row-deposit">${deposit}</div>
+        <div class="daily-row-withdrawal">${withdrawal}</div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="daily-row daily-row-header">
+      <div>Date</div>
+      <div style="text-align:right">Value</div>
+      <div style="text-align:right">Deposit</div>
+      <div style="text-align:right">Withdrawal</div>
+    </div>
+    ${rowsHtml || '<div class="empty-state">No daily values yet</div>'}
+    ${records.length > DAILY_VALUES_PAGE_SIZE ? `
+      <button type="button" id="daily-values-toggle" class="btn-secondary" style="margin-top:12px; width:100%;">
+        ${showAllDailyValues ? 'Show Less' : `Show All (${records.length})`}
+      </button>
+    ` : ''}
+  `;
+
+  const toggleBtn = container.querySelector('#daily-values-toggle');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      showAllDailyValues = !showAllDailyValues;
+      renderDailyValuesList(container);
+    });
+  }
+}
+
 export function renderPortfolioTab(container) {
   const series = computeAdjustedSeries();
   const last = series[series.length - 1];
@@ -55,6 +110,11 @@ export function renderPortfolioTab(container) {
         </div>
       </div>
       <div id="portfolio-chart"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Daily Values</h3>
+      <div id="daily-values-list"></div>
     </div>
 
     <div class="panel">
@@ -83,6 +143,8 @@ export function renderPortfolioTab(container) {
 
   const chartEl = container.querySelector('#portfolio-chart');
   renderLineChart(chartEl, series.map(s => ({ x: formatDateLabel(s.date), y: s.adjustedValue })));
+
+  renderDailyValuesList(container.querySelector('#daily-values-list'));
 
   container.querySelector('#portfolio-form').addEventListener('submit', (e) => {
     e.preventDefault();
