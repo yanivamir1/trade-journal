@@ -62,7 +62,13 @@ export function addPortfolioEntry(entry) {
 }
 
 export function getSettings() {
-  return readJson(KEYS.settings, { finnhubApiKey: '' });
+  return readJson(KEYS.settings, { finnhubApiKey: '', theme: 'system' });
+}
+
+export function applyTheme(theme) {
+  const root = document.documentElement;
+  if (theme === 'light' || theme === 'dark') root.dataset.theme = theme;
+  else delete root.dataset.theme;
 }
 
 export function saveSettings(settings) {

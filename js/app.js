@@ -2,7 +2,7 @@ import { renderTradesTab } from './trades.js';
 import { renderPortfolioTab } from './portfolio.js';
 import { renderStatsTab } from './statsView.js';
 import { renderSettingsTab } from './settingsView.js';
-import { getSettings, saveSettings } from './storage.js';
+import { getSettings, saveSettings, applyTheme } from './storage.js';
 
 const DEFAULT_FINNHUB_KEY = 'dagrii1r01qomfflj180dagrii1r01qomfflj18g';
 
@@ -22,6 +22,7 @@ function ensureDefaultApiKey() {
 
 function init() {
   ensureDefaultApiKey();
+  applyTheme(getSettings().theme);
 
   const content = document.getElementById('tab-content');
   const nav = document.getElementById('nav');

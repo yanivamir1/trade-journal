@@ -1,22 +1,74 @@
 * { box-sizing: border-box; }
 
 :root {
-  --bg: #0f1115;
-  --card: #1a1d24;
-  --card-alt: #22262f;
-  --border: #2a2d34;
-  --text: #e8e8e8;
-  --text-dim: #9aa0ab;
-  --accent: #4a7dff;
-  --positive: #3ecf5f;
-  --negative: #ff5c5c;
+  --bg: #FAF9F7;
+  --card: #FFFFFF;
+  --card-alt: #F5F3EF;
+  --card-border: #ECE9E4;
+  --card-shadow: 0 1px 2px rgba(28,27,26,0.04);
+  --border: #E4E1DA;
+  --text: #1C1B1A;
+  --text-dim: #7A776F;
+  --accent: #35508F;
+  --accent-contrast: #FFFFFF;
+  --positive: #2C7A46;
+  --positive-bg: #EAF3EC;
+  --positive-border: transparent;
+  --negative: #B23B2E;
+  --negative-bg: #F7EAE8;
+  --negative-border: transparent;
+  --fab-shadow: 0 10px 24px rgba(53,80,143,0.30);
+  --font-ui: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --font-num: 'Space Grotesk', var(--font-ui);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: linear-gradient(180deg, #0D1016 0%, #12161F 100%);
+    --card: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0) 40%), #161B24;
+    --card-alt: #1B212B;
+    --card-border: rgba(255,255,255,0.08);
+    --card-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    --border: rgba(255,255,255,0.1);
+    --text: #EDEFF3;
+    --text-dim: #8992A3;
+    --accent: #7DA2FF;
+    --accent-contrast: #0D1016;
+    --positive: #5FCBB0;
+    --positive-bg: rgba(95,203,176,0.12);
+    --positive-border: rgba(95,203,176,0.35);
+    --negative: #E86450;
+    --negative-bg: rgba(232,90,80,0.12);
+    --negative-border: rgba(232,90,80,0.35);
+    --fab-shadow: 0 10px 26px rgba(125,162,255,0.35);
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: linear-gradient(180deg, #0D1016 0%, #12161F 100%);
+  --card: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0) 40%), #161B24;
+  --card-alt: #1B212B;
+  --card-border: rgba(255,255,255,0.08);
+  --card-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  --border: rgba(255,255,255,0.1);
+  --text: #EDEFF3;
+  --text-dim: #8992A3;
+  --accent: #7DA2FF;
+  --accent-contrast: #0D1016;
+  --positive: #5FCBB0;
+  --positive-bg: rgba(95,203,176,0.12);
+  --positive-border: rgba(95,203,176,0.35);
+  --negative: #E86450;
+  --negative-bg: rgba(232,90,80,0.12);
+  --negative-border: rgba(232,90,80,0.35);
+  --fab-shadow: 0 10px 26px rgba(125,162,255,0.35);
 }
 
 html, body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  font-family: var(--font-ui);
 }
 
 #app {
@@ -30,7 +82,7 @@ header.app-header {
   padding: 12px 0 20px;
   text-align: center;
 }
-header.app-header h1 { font-size: 20px; margin: 0; }
+header.app-header h1 { font-size: 21px; margin: 0; font-weight: 800; }
 
 #nav {
   position: fixed;
@@ -39,7 +91,7 @@ header.app-header h1 { font-size: 20px; margin: 0; }
   right: 0;
   display: flex;
   background: var(--card);
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--card-border);
   z-index: 10;
 }
 
@@ -50,9 +102,10 @@ header.app-header h1 { font-size: 20px; margin: 0; }
   color: var(--text-dim);
   padding: 12px 4px;
   font-size: 13px;
+  font-family: var(--font-ui);
   cursor: pointer;
 }
-.nav-item-active { color: var(--accent); font-weight: 600; }
+.nav-item-active { color: var(--accent); font-weight: 700; }
 
 @media (min-width: 768px) {
   #app { max-width: 960px; padding-bottom: 32px; }
@@ -61,7 +114,7 @@ header.app-header h1 { font-size: 20px; margin: 0; }
     justify-content: center;
     gap: 8px;
     border-top: none;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--card-border);
     background: transparent;
     margin-bottom: 20px;
   }
@@ -75,7 +128,9 @@ header.app-header h1 { font-size: 20px; margin: 0; }
 
 .panel {
   background: var(--card);
-  border-radius: 14px;
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  border-radius: 16px;
   padding: 18px;
   margin-bottom: 16px;
 }
@@ -93,51 +148,71 @@ header.app-header h1 { font-size: 20px; margin: 0; }
 }
 .summary-card {
   background: var(--card);
-  border-radius: 14px;
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  border-radius: 16px;
   padding: 14px;
   text-align: center;
 }
 .summary-label { color: var(--text-dim); font-size: 12px; margin-bottom: 6px; }
-.summary-value { font-size: 22px; font-weight: 700; }
+.summary-value { font-size: 22px; font-weight: 700; font-family: var(--font-num); }
 
 .tabs-row { display: flex; gap: 8px; margin-bottom: 14px; }
 .chip {
-  background: var(--card);
+  background: transparent;
   border: 1px solid var(--border);
   color: var(--text-dim);
   border-radius: 999px;
   padding: 8px 16px;
   font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-ui);
   cursor: pointer;
 }
-.chip-active { color: #fff; background: var(--accent); border-color: var(--accent); }
+.chip-active { color: var(--accent-contrast); background: var(--accent); border-color: var(--accent); }
 
-.trade-list { display: flex; flex-direction: column; gap: 10px; }
+.trade-list { display: flex; flex-direction: column; gap: 12px; }
 .trade-card {
   background: var(--card);
-  border-radius: 14px;
-  padding: 14px 16px;
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  border-radius: 16px;
+  padding: 18px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
 }
-.trade-symbol { font-size: 17px; font-weight: 700; }
-.trade-meta { color: var(--text-dim); font-size: 12.5px; margin-top: 2px; }
-.trade-card-side { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.trade-symbol { font-family: var(--font-num); font-size: 17px; font-weight: 700; letter-spacing: 0.01em; }
+.trade-meta { color: var(--text-dim); font-size: 13px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.trade-card-side { display: flex; flex-direction: column; align-items: flex-end; gap: 9px; }
 
-.badge { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
-.badge-open { background: #2a3550; color: #8fb0ff; }
-.badge-positive { background: rgba(62,207,95,0.15); color: var(--positive); }
-.badge-negative { background: rgba(255,92,92,0.15); color: var(--negative); }
+.badge {
+  font-family: var(--font-num);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-variant-numeric: tabular-nums;
+}
+.badge-open { background: var(--card-alt); color: var(--text-dim); border-color: var(--card-border); }
+.badge-positive { background: var(--positive-bg); color: var(--positive); border-color: var(--positive-border); }
+.badge-negative { background: var(--negative-bg); color: var(--negative); border-color: var(--negative-border); }
 
 .btn-sell {
-  background: var(--negative);
-  color: #fff;
-  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  background: transparent;
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
   border-radius: 10px;
-  padding: 8px 16px;
+  padding: 0 16px;
+  font-family: var(--font-ui);
   font-weight: 700;
+  font-size: 13px;
   cursor: pointer;
 }
 
@@ -146,19 +221,24 @@ header.app-header h1 { font-size: 20px; margin: 0; }
   bottom: 76px;
   left: 50%;
   transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-contrast);
   border: none;
   border-radius: 999px;
-  padding: 14px 26px;
+  padding: 0 26px;
+  font-family: var(--font-ui);
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(74,125,255,0.4);
+  box-shadow: var(--fab-shadow);
   z-index: 5;
 }
 @media (min-width: 768px) {
-  .fab { position: static; transform: none; display: block; margin: 0 auto 16px; }
+  .fab { position: static; transform: none; display: inline-flex; margin: 0 auto 16px; }
 }
 
 .empty-state { color: var(--text-dim); text-align: center; padding: 24px 0; font-size: 14px; }
@@ -168,13 +248,14 @@ header.app-header h1 { font-size: 20px; margin: 0; }
   .form-grid { grid-template-columns: 1fr 1fr; }
   .form-grid button, .form-grid .live-price-row { grid-column: 1 / -1; }
 }
-.form-grid label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-dim); }
+.form-grid label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-dim); font-family: var(--font-ui); }
 .form-grid input, .form-grid select {
   background: var(--card-alt);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
   padding: 10px;
   color: var(--text);
+  font-family: var(--font-ui);
   font-size: 14px;
 }
 .form-grid input:focus, .form-grid select:focus { outline: 2px solid var(--accent); }
@@ -183,16 +264,18 @@ header.app-header h1 { font-size: 20px; margin: 0; }
   border: none;
   border-radius: 10px;
   padding: 12px 18px;
+  font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-height: 44px;
 }
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-secondary { background: var(--card-alt); color: var(--text); border: 1px solid var(--border); }
-.btn-danger { background: rgba(255,92,92,0.15); color: var(--negative); border: 1px solid var(--negative); }
+.btn-primary { background: var(--accent); color: var(--accent-contrast); }
+.btn-secondary { background: var(--card-alt); color: var(--text); border: 1px solid var(--card-border); }
+.btn-danger { background: var(--negative-bg); color: var(--negative); border: 1px solid var(--negative); }
 .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
 
 .live-price-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -203,7 +286,7 @@ header.app-header h1 { font-size: 20px; margin: 0; }
 .bar-row-sub { display: block; color: var(--text-dim); font-size: 11px; }
 .bar-row-track { background: var(--card-alt); border-radius: 6px; height: 10px; overflow: hidden; }
 .bar-row-fill { height: 100%; border-radius: 6px; }
-.bar-row-value { text-align: right; font-size: 13px; font-weight: 700; }
+.bar-row-value { text-align: right; font-size: 13px; font-weight: 700; font-family: var(--font-num); }
 
 .modal-backdrop {
   position: fixed; inset: 0;
@@ -216,6 +299,8 @@ header.app-header h1 { font-size: 20px; margin: 0; }
 }
 .modal-box {
   background: var(--card);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
   border-radius: 18px 18px 0 0;
   padding: 20px;
   width: 100%;
@@ -243,3 +328,21 @@ header.app-header h1 { font-size: 20px; margin: 0; }
 .line-chart { display: block; }
 
 .ltr-num { direction: ltr; unicode-bidi: isolate; display: inline-block; }
+
+.theme-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.theme-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  background: transparent;
+  border: 1px solid var(--card-border);
+  color: var(--text-dim);
+  border-radius: 10px;
+  padding: 0 16px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.theme-btn-active { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }

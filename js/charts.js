@@ -6,8 +6,13 @@ function el(tag, attrs) {
   return node;
 }
 
+function cssVar(name, fallback) {
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return value || fallback;
+}
+
 // points: [{x: label(string), y: number}], drawn as a responsive area/line chart.
-export function renderLineChart(container, rawPoints, { color = '#4a7dff', height = 220 } = {}) {
+export function renderLineChart(container, rawPoints, { color = cssVar('--accent', '#35508F'), height = 220 } = {}) {
   container.innerHTML = '';
   const points = rawPoints.filter(p => typeof p.y === 'number' && !Number.isNaN(p.y));
   if (!points.length) {
@@ -39,13 +44,13 @@ export function renderLineChart(container, rawPoints, { color = '#4a7dff', heigh
   const zeroed = min < 0 && max > 0;
   if (zeroed) {
     const y0 = yAt(0);
-    svg.appendChild(el('line', { x1: padding.left, x2: width - padding.right, y1: y0, y2: y0, stroke: '#666', 'stroke-dasharray': '4 4', 'stroke-width': '1' }));
+    svg.appendChild(el('line', { x1: padding.left, x2: width - padding.right, y1: y0, y2: y0, stroke: cssVar('--text-dim', '#7A776F'), 'stroke-opacity': '0.5', 'stroke-dasharray': '4 4', 'stroke-width': '1' }));
   }
 
   const first = points[0];
   const last = points[points.length - 1];
   const label = (p, i) => {
-    const t = el('text', { x: xAt(i), y: height - 6, 'font-size': '11', fill: '#9aa0ab', 'text-anchor': i === 0 ? 'start' : 'end' });
+    const t = el('text', { x: xAt(i), y: height - 6, 'font-size': '11', fill: cssVar('--text-dim', '#7A776F'), 'text-anchor': i === 0 ? 'start' : 'end' });
     t.textContent = p.x;
     return t;
   };
@@ -56,12 +61,13 @@ export function renderLineChart(container, rawPoints, { color = '#4a7dff', heigh
 }
 
 // data: [{group, value, sublabel}], rendered as a horizontal bar list (HTML/CSS, not SVG).
-export function renderBarList(container, data, { valueSuffix = '%', color = '#4a7dff' } = {}) {
+export function renderBarList(container, data, { valueSuffix = '%', color = cssVar('--accent', '#35508F') } = {}) {
   container.innerHTML = '';
   if (!data.length) {
     container.innerHTML = '<div class="empty-state">Not enough closed trades for this breakdown yet</div>';
     return;
   }
+  const negativeColor = cssVar('--negative', '#B23B2E');
   const maxAbs = Math.max(...data.map(d => Math.abs(d.value)), 1);
   for (const d of data) {
     const row = document.createElement('div');
@@ -71,7 +77,7 @@ export function renderBarList(container, data, { valueSuffix = '%', color = '#4a
     row.innerHTML = `
       <div class="bar-row-label">${d.group}${d.sublabel ? `<span class="bar-row-sub">${d.sublabel}</span>` : ''}</div>
       <div class="bar-row-track">
-        <div class="bar-row-fill ${negative ? 'negative' : ''}" style="width:${pct}%; background:${negative ? '#ff5c5c' : color}"></div>
+        <div class="bar-row-fill" style="width:${pct}%; background:${negative ? negativeColor : color}"></div>
       </div>
       <div class="bar-row-value">${d.value.toFixed(1)}${valueSuffix}</div>
     `;

@@ -1,4 +1,10 @@
-import { getSettings, saveSettings, getTrades, saveTrades, exportAllData, importAppBackup, makeId } from './storage.js';
+import { getSettings, saveSettings, getTrades, saveTrades, exportAllData, importAppBackup, makeId, applyTheme } from './storage.js';
+
+const THEME_OPTIONS = [
+  { value: 'system', label: 'System' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
 
 function normalizeLegacyTrade(raw) {
   return {
@@ -32,7 +38,17 @@ function normalizeLegacyTrade(raw) {
 export function renderSettingsTab(container) {
   const settings = getSettings();
 
+  const theme = settings.theme || 'system';
+
   container.innerHTML = `
+    <div class="panel">
+      <h3>Appearance</h3>
+      <p class="hint">System follows your device's light/dark setting.</p>
+      <div class="theme-row">
+        ${THEME_OPTIONS.map(o => `<button type="button" class="theme-btn ${o.value === theme ? 'theme-btn-active' : ''}" data-theme-option="${o.value}">${o.label}</button>`).join('')}
+      </div>
+    </div>
+
     <div class="panel">
       <h3>API Key (Finnhub)</h3>
       <p class="hint">Required for the Live Price button to work. Free, sign up at finnhub.io/register.</p>
@@ -69,6 +85,15 @@ export function renderSettingsTab(container) {
       <button id="reset-btn" class="btn-danger">Delete Everything</button>
     </div>
   `;
+
+  container.querySelectorAll('[data-theme-option]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const nextTheme = btn.dataset.themeOption;
+      saveSettings({ ...settings, theme: nextTheme });
+      applyTheme(nextTheme);
+      renderSettingsTab(container);
+    });
+  });
 
   container.querySelector('#api-key-form').addEventListener('submit', (e) => {
     e.preventDefault();
