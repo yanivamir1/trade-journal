@@ -39,30 +39,51 @@ function formatDateLabel(iso) {
 }
 
 function formatFullDateLabel(iso) {
-  const date = new Date(`${iso}T00:00:00`);
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${y}`;
 }
 
 const DAILY_VALUES_PAGE_SIZE = 10;
 let showAllDailyValues = false;
 
-function rowValueLabel(record) {
+function recordRawValue(record) {
   const value = record.type === 'candle' ? record.close : record.type === 'point' ? record.value : null;
-  return typeof value === 'number' && !Number.isNaN(value) ? `$${value.toFixed(0)}` : '—';
+  return typeof value === 'number' && !Number.isNaN(value) ? value : null;
 }
 
 function renderDailyValuesList(container) {
   const records = [...getPortfolioHistory()].sort((a, b) => b.date.localeCompare(a.date));
+
+  // Previous-day % change is based on chronological order, so compute it off an
+  // ascending pass before rendering the descending (most-recent-first) list.
+  const ascending = [...records].sort((a, b) => a.date.localeCompare(b.date));
+  const pctChangeByDate = {};
+  let prevValue = null;
+  for (const r of ascending) {
+    const value = recordRawValue(r);
+    if (value !== null && prevValue !== null) {
+      pctChangeByDate[r.date] = ((value - prevValue) / prevValue) * 100;
+    }
+    if (value !== null) prevValue = value;
+  }
+
   const visible = showAllDailyValues ? records : records.slice(0, DAILY_VALUES_PAGE_SIZE);
 
   const rowsHtml = visible.map(r => {
+    const value = recordRawValue(r);
+    const valueLabel = value !== null ? `$${value.toFixed(0)}` : '—';
     const flow = Number(r.deposit_withdrawal || 0);
     const deposit = flow > 0 ? `$${flow.toFixed(0)}` : '—';
     const withdrawal = flow < 0 ? `$${Math.abs(flow).toFixed(0)}` : '—';
+    const pctChange = pctChangeByDate[r.date];
+    const pctLabel = typeof pctChange === 'number'
+      ? `<span class="${pctChange >= 0 ? 'daily-row-pct-up' : 'daily-row-pct-down'}">${pctChange >= 0 ? '+' : ''}${pctChange.toFixed(1)}%</span>`
+      : '—';
     return `
       <div class="daily-row">
         <div class="daily-row-date">${formatFullDateLabel(r.date)}</div>
-        <div class="daily-row-value">${rowValueLabel(r)}</div>
+        <div class="daily-row-value">${valueLabel}</div>
+        <div class="daily-row-pct">${pctLabel}</div>
         <div class="daily-row-deposit">${deposit}</div>
         <div class="daily-row-withdrawal">${withdrawal}</div>
       </div>
@@ -73,6 +94,7 @@ function renderDailyValuesList(container) {
     <div class="daily-row daily-row-header">
       <div>Date</div>
       <div style="text-align:right">Value</div>
+      <div style="text-align:right">Change</div>
       <div style="text-align:right">Deposit</div>
       <div style="text-align:right">Withdrawal</div>
     </div>

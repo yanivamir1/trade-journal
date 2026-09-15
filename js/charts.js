@@ -47,15 +47,24 @@ export function renderLineChart(container, rawPoints, { color = cssVar('--accent
     svg.appendChild(el('line', { x1: padding.left, x2: width - padding.right, y1: y0, y2: y0, stroke: cssVar('--text-dim', '#7A776F'), 'stroke-opacity': '0.5', 'stroke-dasharray': '4 4', 'stroke-width': '1' }));
   }
 
-  const first = points[0];
-  const last = points[points.length - 1];
-  const label = (p, i) => {
-    const t = el('text', { x: xAt(i), y: height - 6, 'font-size': '11', fill: cssVar('--text-dim', '#7A776F'), 'text-anchor': i === 0 ? 'start' : 'end' });
+  const label = (p, i, anchor) => {
+    const t = el('text', { x: xAt(i), y: height - 6, 'font-size': '11', fill: cssVar('--text-dim', '#7A776F'), 'text-anchor': anchor });
     t.textContent = p.x;
     return t;
   };
-  svg.appendChild(label(first, 0));
-  svg.appendChild(label(last, points.length - 1));
+
+  // Space out however many date labels fit without overlapping (roughly one per 70px).
+  const maxLabels = Math.max(2, Math.floor(plotW / 70));
+  const lastIdx = points.length - 1;
+  const step = Math.max(1, Math.round(lastIdx / (maxLabels - 1)));
+  const tickIndexes = [];
+  for (let i = 0; i <= lastIdx; i += step) tickIndexes.push(i);
+  if (tickIndexes[tickIndexes.length - 1] !== lastIdx) tickIndexes.push(lastIdx);
+
+  tickIndexes.forEach((i) => {
+    const anchor = i === 0 ? 'start' : i === lastIdx ? 'end' : 'middle';
+    svg.appendChild(label(points[i], i, anchor));
+  });
 
   container.appendChild(svg);
 }

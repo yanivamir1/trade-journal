@@ -283,17 +283,20 @@ header.app-header h1 { font-size: 21px; margin: 0; font-weight: 800; }
 
 .daily-row {
   display: grid;
-  grid-template-columns: 1fr 64px 64px 64px;
-  gap: 6px;
+  grid-template-columns: 1fr 56px 52px 52px 52px;
+  gap: 5px;
   align-items: center;
   padding: 8px 0;
   border-bottom: 1px solid var(--card-border);
-  font-size: 12.5px;
+  font-size: 12px;
 }
 .daily-row:last-child { border-bottom: none; }
-.daily-row-header { color: var(--text-dim); font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.02em; border-bottom: 1px solid var(--card-border); }
+.daily-row-header { color: var(--text-dim); font-size: 10.5px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.02em; border-bottom: 1px solid var(--card-border); }
 .daily-row-date { color: var(--text-dim); font-family: var(--font-num); }
 .daily-row-value { font-family: var(--font-num); font-weight: 700; text-align: right; }
+.daily-row-pct { font-family: var(--font-num); text-align: right; }
+.daily-row-pct-up { color: var(--positive); }
+.daily-row-pct-down { color: var(--negative); }
 .daily-row-deposit { font-family: var(--font-num); text-align: right; color: var(--positive); }
 .daily-row-withdrawal { font-family: var(--font-num); text-align: right; color: var(--negative); }
 
